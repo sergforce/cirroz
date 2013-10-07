@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 PROJECT(bare_tools C ASM)
 
 SET(TARGET "armv4t")
-SET(ARM_C_OPT   "-nostdlib -nodefaultlibs -nostartfiles -march=${TARGET} -mcpu=arm920t")
+SET(ARM_C_OPT   " -Os -nostdlib -nodefaultlibs -nostartfiles -march=${TARGET} -mcpu=arm920t")
 SET(ARM_LD_OPT   "-Wl,-T ${CMAKE_CURRENT_SOURCE_DIR}/startup.lds -Wl,--gc-sections")
 
 

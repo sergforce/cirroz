@@ -23,7 +23,7 @@
 #pragma pack(1)
 #endif
 
-__arm void set_clock();
+__arm static void set_clock();
 
 TCODE static int strlen(const char* p)
 {
@@ -45,7 +45,7 @@ TCODE static void uputchar(int ch)
 }
 
 
-TCODE void uprintf(char* buffer, ...) 
+TCODE static void uprintf(char* buffer, ...) 
 {
   /*
     uputchar('.');
@@ -63,7 +63,7 @@ TCODE void uprintf(char* buffer, ...)
     }
 }
 
-TCODE void updigit(int val)
+TCODE static void updigit(int val)
 {
   if (val > 9)
     uputchar('A' + val - 10);
@@ -90,7 +90,7 @@ TCODE static void upval(int val)
 #define REG_SDRAM_DEVCFG SDRAM_DEVCFG_CS0
 #define SDPHYSICAL_ADDR_SDRAM_MAIN  (volatile ULONG *)(PHYSICAL_ADDR_SDRAM_MAIN)
 
-TCODE void do_check(int i)
+TCODE static void do_check(int i)
 {
       *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00004000 / 4) = i;
       int j = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00004000 / 4) ;
@@ -108,11 +108,27 @@ TCODE void do_check(int i)
 #define SDRAM_DSIZE      ((64 * 1024 * 1024) / 4)
       
 
-TCODE void do_work()
+TCODE static void wait_200us()
 {
-    unsigned i, j, p;
+    volatile unsigned d;
+    for (d = 0; d < 700; d++);
+}
+
+TCODE static void wait_22us()
+{
+    volatile unsigned d;
+    for (d = 0; d < 80; d++);
+}
+
+
+TCODE static void do_work()
+{
+    volatile unsigned d;
+    unsigned i;
+    unsigned j, p;
+    /*uprintf("DRAM TEST\n");*/
+
     uputchar('A');
-    
     /*for (;;) {
       upval(1589+5465);
       uprintf("Hello, world!\n");
@@ -133,17 +149,20 @@ TCODE void do_work()
 #endif      
     
     // Wait 200 us
-    for (i = 0; i < 700; i++);
+    //for (d = 0; d < 700; d++);
+    wait_200us();
   
     //Set the Initialize and MRS bits (issue continuous NOP commands (INIT & MRS set))
     *SDRAM_GLOBALCFG = GLOBALCFG_INIT | GLOBALCFG_MRS | GLOBALCFG_CKE;
     // Wait 200 us
-    for (i = 0; i < 700; i++);
+    //for (d = 0; d < 700; d++);
+    wait_200us();
 
     //Clear the MRS bit to issue a precharge all.
     *SDRAM_GLOBALCFG = GLOBALCFG_INIT | GLOBALCFG_CKE;
     // Wait 200 us
-    for (i = 0; i < 700; i++);
+    //for (d = 0; d < 700; d++);
+    wait_200us();
     
 #ifdef SDRAM_WIDTH_32    
     *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00000000 / 4) = 0xFFFFFFFF;
@@ -161,36 +180,39 @@ TCODE void do_work()
     // auto refresh cycles are generated. is refreshed.
 
     *SDRAM_REFRESH = 0x10;
-    for (i = 0; i < 80; i++);
+    //for (d = 0; d < 80; d++);
+    wait_22us();
     
     *SDRAM_REFRESH = 0x204;
-    for (i = 0; i < 80; i++);    
+    //for (d = 0; d < 80; d++);    
+    wait_22us();
 
     //Select mode register update mode
     *SDRAM_GLOBALCFG = GLOBALCFG_MRS | GLOBALCFG_CKE;
 #ifdef SDRAM_WIDTH_32      
-    i = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00008800 / 4);
-    i = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00408800 / 4);
-    i = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00808800 / 4);
-    i = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00C08800 / 4);     
+    d = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00008800 / 4);
+    d = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00408800 / 4);
+    d = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00808800 / 4);
+    d = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00C08800 / 4);     
 /*   i = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x0000C800 / 4);
     i = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x0040C800 / 4);
     i = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x0080C800 / 4);
     i = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00C0C800 / 4); 
 */
 #else
-    i = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00006600 / 4);
-    i = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00206600 / 4);
-    i = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00406600 / 4);
-    i = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00606600 / 4); 
+    d = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00006600 / 4);
+    d = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00206600 / 4);
+    d = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00406600 / 4);
+    d = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00606600 / 4); 
 #endif 
     
     // Select mode register update mode
     *SDRAM_GLOBALCFG = GLOBALCFG_CKE;
     // Wait 200 us
-    for (i = 0; i < 700; i++);
+    //for (d = 0; d < 700; d++);
+    wait_200us();
     
-    i = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00004000 / 4);
+    d = *(SDPHYSICAL_ADDR_SDRAM_MAIN + 0x00004000 / 4);
     
     /*
     for (i = 0; ;i++) {
@@ -200,7 +222,8 @@ TCODE void do_work()
     */
     
     set_clock();
-    for (i = 0; i < 700; i++);
+    //for (i = 0; i < 700; i++);
+    wait_200us();
     
     
     for (i = 0 ; ; i++) {
@@ -210,11 +233,11 @@ TCODE void do_work()
       do_check(0x55aa55aa);
       do_check(0x88888888);
       do_check(0xf0f0f0f0);
-      do_check(0x0f0f0f0f);      
+      do_check(0x0f0f0f0f);
       do_check(0x00ff00ff);
       do_check(0xff00ff00);
       do_check(0xffff0000);
-      do_check(0x0000ffff);      
+      do_check(0x0000ffff);
 
       for (j = 0xf; j != 0xf0000000; j<<=1) {      
         do_check(j);
@@ -389,7 +412,7 @@ static DWORD				gdwCurEraseBlock		=0;
 static DWORD				gdwCurEraseBlockMask	=0;
 static DWORD				gdwFlashBufferSize		=64;
 */
-TCODE void TestFlash()
+TCODE static void TestFlash()
 {
         volatile USHORT *gpusCurAddr = 0;  
         DWORD gdwManufactureId = 0;
@@ -409,7 +432,7 @@ TCODE void TestFlash()
 	gdwManufactureId 	= *gpusCurAddr;
 
 	//EdbgOutputDebugString("init flash manufacture %x\r\n.",gdwManufactureId );
-        uprintf("Flash manufacture :");
+        uprintf("FM:");
         upval(gdwManufactureId);  
         uprintf("\n");
         
@@ -421,7 +444,7 @@ TCODE void TestFlash()
 	gdwFlashSize = 1 << (*(gpusCurAddr + 0x27) & 0xFF);
 
 	//EdbgOutputDebugString("bootloader flash size  %x\r\n.",gdwFlashSize );
-        uprintf("bootloader flash size ");
+        uprintf("FS:");
         upval(gdwFlashSize);  
         uprintf("\n");        
 
@@ -438,14 +461,14 @@ TCODE void TestFlash()
 		dwToalSize += block_size * blocks;
 
 		//EdbgOutputDebugString("block size %x-- num %x\r\n.",sBlockInfo[iIdx].block_size, sBlockInfo[iIdx].blocks );
-                uprintf("block size ");
+                uprintf("bs ");
                 upval(block_size);  
                 uprintf(" -- num  ");
                 upval(blocks); 
                 uprintf("\n");
 	}
         
-        uprintf("Total size ");
+        uprintf("T ");
         upval(dwToalSize);
         uprintf("\n");
         
@@ -453,7 +476,7 @@ TCODE void TestFlash()
           DWORD val = *(gpusCurAddr + i);
           uprintf("RID: ");
           upval(i);
-          uprintf(" value: ");          
+          uprintf(" v: ");          
           upval(val);          
           uprintf("\n");
         }
@@ -599,10 +622,10 @@ asm ("nop\n"
     *CSC_SYSLOCK = 0xAA;        
 }
 
-int main2()
+void main2()
 {
 
-    //TestFlash();
+    TestFlash();
     do_work();    
-    for (;;);
+//    for (;;);
 }

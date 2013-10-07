@@ -3,7 +3,7 @@ OUTPUT_ARCH(arm)
 ENTRY(_start)
 
 MEMORY {
-    RAM(rwx) : ORIGIN = 0x80014000, LENGTH = 4k
+    RAM(rwx) : ORIGIN = 0x80014000, LENGTH = 2k
 }
 
 SECTIONS {
@@ -16,6 +16,10 @@ SECTIONS {
 	. = ALIGN(0x4);
 
 	*(.rodata .rodata.*)
+
+	. = ALIGN(0x4);
+
+	*(.data .data.*)
 
     } > RAM
 
