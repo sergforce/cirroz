@@ -1,0 +1,86 @@
+        NAME    main
+        
+        PUBLIC  main
+        EXTERN main2
+        
+        RSEG	ICODE:CODE:ROOT(2)
+        CODE32
+ ;       org     0x80014000        
+        org 0
+        DC32     'CRUS'
+;        org     0x80014004
+
+
+
+;
+;  Kill watch dog timer. Before any thing else.
+;
+                ldr             r0, =0x80940000
+                ldr             r1, =0xAA55
+                str             r1, [r0]
+
+;
+; ensure SVC32 mode with IRQ and FIQ disabled
+;
+                mov             r0, #0xd3
+                msr             cpsr_c, r0
+//
+//
+//		EXTERN	__segment_init
+//		ldr	r0,=__segment_init
+//                mov     lr, pc
+//		bx	r0
+
+; set stack pointer to the top of RAM		
+                ldr	sp,=0x80015000
+//                ldr	sp,=0x8001FFF0
+
+
+main:
+        B       main2
+
+
+//main:
+//
+//        LDR         R0,??main_0        ;; 0xb0840024
+//        LDR         R1,??main_0        ;; 0xb0840024
+//        LDR         R1,[R1, #+0]
+//        ORRS        R1,R1,#0x2
+//        STR         R1,[R0, #+0]
+//
+//        MOV         R0,#+0
+//        B           ??main_1
+//??main_2:
+//        ADDS        R0,R0,#+1
+//??main_3:
+//        LDR         R1,??main_0+0x4    ;; 0x989680
+//        CMP         R0,R1
+//        BLT         ??main_2
+//        LDR         R0,??main_0+0x8    ;; 0xb0840020
+//        LDR         R1,??main_0+0x8    ;; 0xb0840020
+//        LDR         R1,[R1, #+0]
+//        BICS        R1,R1,#0x1
+//        STR         R1,[R0, #+0]
+//??main_1:
+//        MOV         R0,#+0
+//        B           ??main_4
+//??main_5:
+//        ADDS        R0,R0,#+1
+//??main_4:
+//        LDR         R1,??main_0+0x4    ;; 0x989680
+//        CMP         R0,R1
+//        BLT         ??main_5
+//        LDR         R0,??main_0+0x8    ;; 0xb0840020
+//        LDR         R1,??main_0+0x8    ;; 0xb0840020
+//        LDR         R1,[R1, #+0]
+//        ORRS        R1,R1,#0x1
+//        STR         R1,[R0, #+0]
+//        MOV         R0,#+0
+//        B           ??main_3
+//??main_0:
+//        DC32        0x80840024
+//        DC32        0x10000
+//        DC32        0x80840020
+//
+
+          END     main

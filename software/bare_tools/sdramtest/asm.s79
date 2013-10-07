@@ -1,0 +1,19 @@
+        NAME    main
+        
+        PUBLIC  main
+        EXTERN main2
+        
+        RSEG	ICODE:CODE:ROOT(2)
+        CODE32
+        org     0
+        DC32     'CRUS'
+
+; set stack pointer to the top of RAM	      
+        ldr   sp,=0x80017000
+
+
+main:
+        B       main2
+
+        END     main
+        
