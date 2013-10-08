@@ -45,7 +45,7 @@ TCODE static void uputchar(int ch)
 }
 
 
-TCODE static void uprintf(char* buffer, ...) 
+TCODE static void uprintf(char* buffer)
 {
   /*
     uputchar('.');
@@ -425,30 +425,25 @@ TCODE static void TestFlash()
 	int i;
 	
 	gpusCurAddr = (unsigned short*)PHYSICAL_ADDR_FLASH;
-	//
 	// Query 16 bitwidth id.
-	//
 	*gpusCurAddr 		= FLASH_READ_ID_CODES;
 	gdwManufactureId 	= *gpusCurAddr;
 
-	//EdbgOutputDebugString("init flash manufacture %x\r\n.",gdwManufactureId );
         uprintf("FM:");
         upval(gdwManufactureId);  
         uprintf("\n");
         
-	//
 	// Query 16 bitwidth flash.
-	//
 	*gpusCurAddr = FLASH_READ_QUERY;
 
 	gdwFlashSize = 1 << (*(gpusCurAddr + 0x27) & 0xFF);
 
-	//EdbgOutputDebugString("bootloader flash size  %x\r\n.",gdwFlashSize );
         uprintf("FS:");
         upval(gdwFlashSize);  
         uprintf("\n");        
 
-	gdwNumEraseRegion = *(gpusCurAddr + 0x2c) & 0xFFFF;
+	//gdwNumEraseRegion = *(gpusCurAddr + 0x2c) & 0xFFFF;
+	gdwNumEraseRegion = *(gpusCurAddr + 0x2c) & 0x00FF; //Set bs to MAX 256
 
 	for(iIdx = 0; iIdx < gdwNumEraseRegion; iIdx++)
 	{
@@ -460,10 +455,9 @@ TCODE static void TestFlash()
 
 		dwToalSize += block_size * blocks;
 
-		//EdbgOutputDebugString("block size %x-- num %x\r\n.",sBlockInfo[iIdx].block_size, sBlockInfo[iIdx].blocks );
                 uprintf("bs ");
                 upval(block_size);  
-                uprintf(" -- num  ");
+                uprintf(" -- ");
                 upval(blocks); 
                 uprintf("\n");
 	}
