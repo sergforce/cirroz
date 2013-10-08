@@ -1,0 +1,15 @@
+RS-274-X:	Digits - 4.5, Units - English, Zero Suppression - None, Type - Absolute.
+NC DRILL:	Digits - 4.5, Units - English, Zero Suppression - None, Type - Absolute.
+
+TopOverlay	pcb1.gto
+TopMask		pcb1.gts
+TopLayer	pcb1.gtl
+Internal1	pcb1.g1
+Internal2	pcb1.g2
+BottomLayer	pcb1.gbl
+BottomMask	pcb1.gbs
+BottomOverlay	pcb1.gbo
+
+Border		pcb1.gm2
+
+NcDrill		pcb1.drl
